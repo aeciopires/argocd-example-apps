@@ -5,9 +5,9 @@ metadata:
   labels:
     {{- include "kube-pires.labels" . | nindent 4 }}
 spec:
-{{- if not .Values.autoscaling.enabled }}
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-{{- end }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "kube-pires.selectorLabels" . | nindent 6 }}
@@ -17,10 +17,10 @@ spec:
 {{- end }} 
   template:
     metadata:
-    {{- with .Values.podAnnotations }}
+      {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
-    {{- end }}
+      {{- end }}
       labels:
         {{- include "kube-pires.selectorLabels" . | nindent 8 }}
     spec:
@@ -28,7 +28,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "kube-pires.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -43,9 +42,9 @@ spec:
                   key:  password
                   name: {{ include "kube-pires.fullname" . }}-my-secret
             - name: MY_SECRET_HIGH_SECURITY
-              value: "{{ .Values.mySecret.my_secret_high_security }}"
+              value: "{{ .Values.mySecret.mySecretHighSecurity }}"
             - name: MY_SECRET_DISTRIBUTED_TRACING_ENABLED
-              value: "{{ .Values.mySecret.my_secret_distributed_tracing_enabled }}"
+              value: "{{ .Values.mySecret.mySecretDistributedTracingEnabled }}"
             {{ end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -53,7 +52,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 3000
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -75,9 +74,17 @@ spec:
             failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+
+      {{- if .Values.karpenter.enabled }}
+      nodeSelector:
+        {{- with .Values.karpenter.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- else }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- end }}
       {{- with .Values.affinity }}
       affinity:

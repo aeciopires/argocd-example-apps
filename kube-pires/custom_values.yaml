@@ -1,0 +1,161 @@
+# Default values for kube-pires.
+replicaCount: 1
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 6
+    maxUnavailable: 0
+
+# Docker images of example
+# https://hub.docker.com/r/yeasy/simple-web
+# https://hub.docker.com/r/paulbouwer/hello-kubernetes/
+# https://github.com/paulbouwer/hello-kubernetes
+
+image:
+  repository: aeciopires/kube-pires
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.0.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: NodePort
+  port: 80
+
+ingress:
+  #---------enabled: false
+  enabled: true
+  className: ""
+  annotations:
+    # Annotations to create loadbalancer in AWS of the type application for external access of the VPC
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/healthcheck-path: "/"
+    alb.ingress.kubernetes.io/healthcheck-port: http
+    #---------alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:AWS_REGION:AWS_ACCOUNT:certificate/ID_ACM_CERTIFICATE
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:743047814061:certificate/485d913a-79ab-4cb5-87c6-6d25d35bb0a2
+    alb.ingress.kubernetes.io/tags: Scost=kube-pires, Environment=testing, Terraform=false, Kubernetes=true
+    # Annotations to use nginx-ingress
+    #kubernetes.io/ingress.class: nginx
+    #kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: kube-pires.sensedia-eng.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: kube-pires-tls
+  #    hosts:
+  #      - kube-pires.aeciopires.com
+
+resources:
+  limits:
+    cpu: "4"
+    memory: 10Gi
+  requests:
+    cpu: "4"
+    memory: 10Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Health check on creation pod
+readinessProbe:
+  path: /health
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+# Healh check continuos
+livenessProbe:
+  path: /health
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+#  podAntiAffinity:
+#    requiredDuringSchedulingIgnoredDuringExecution:
+#    - labelSelector:
+#        matchLabels:
+#          app.kubernetes.io/name: kube-pires
+#      namespaces:
+#      - kube-pires
+#      topologyKey: kubernetes.io/hostname
+
+mySecret:
+  enabled: true
+  my_secret_license_key: mysecurepassword2
+  my_secret_high_security: "false"
+  my_secret_distributed_tracing_enabled: "true"
+
+serviceMonitor:
+  enabled: false
+  additionalLabels: {}
+  path: "/metrics"
+  interval: "30s"
+  scrapeTimeout: "10s"
+  namespace: "kube-pires"
+  namespaceSelector: {}
+
+karpenter:
+  # -- Enables support provisioner of Karpenter. Reference: https://karpenter.sh/.
+  # Tested only using EKS cluster 1.25 in AWS with Karpenter 0.33.0.
+  enabled: true
+  amiFamily: AL2
+#  clusterName: "testing-ipaas-ge1r"
+#  tag: "karpenter.sh/discovery/testing-ipaas-ge1r"
+#  role:
+#    use: true
+#    name: "kpt0-ge1r-eks-node-group-20231207133310227400000006"
+  clusterName: "testing-ipaas-p0p0"
+  tag: "karpenter.sh/discovery/testing-ipaas-p0p0"
+  role:
+    use: true
+    name: "kpt0-p0p0-eks-node-group-20231205115002967200000005"
+  limits:
+    cpu: "100"
+    memory: "400Gi"
+  requirements:
+    - key: "kubernetes.io/arch"
+      operator: In
+      values: ["amd64"]
+    - key: "karpenter.sh/capacity-type"
+      operator: In
+      values: ["spot", "on-demand"]
+
+
+pdb:
+  enabled: true
+  maxUnavailable: 25%

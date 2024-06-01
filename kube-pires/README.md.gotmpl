@@ -5,82 +5,33 @@
 
 # Prerequisites
 
-## Kubectl
-
-Install ``kubectl`` command.
-
-```bash
-curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-
-chmod +x ./kubectl
-
-sudo mv ./kubectl /usr/local/bin/kubectl
-
-kubectl version --client
-```
-
-## Helm
-
-Install ``helm`` command.
-
-```bash
-VERSION=v3.2.4
-HELM_TAR_FILE=helm-$VERSION-linux-amd64.tar.gz
-
-wget https://get.helm.sh/${HELM_TAR_FILE}
-
-tar -xvzf ${HELM_TAR_FILE}
-
-chmod +x linux-amd64/helm
-
-sudo cp linux-amd64/helm /usr/bin/helm
-
-rm -rf ${HELM_TAR_FILE} linux-amd64
-
-helm version
-```
+* Install the kubectl, helm and helm-docs commands following the instructions of the file [REQUIREMENTS.md](../REQUIREMENTS.md).
 
 # Installing the Chart
 
-* First, access a Kubernetes cluster.
+* Access a Kubernetes cluster.
 
-* Change the values according to the need of the environment in ``{{ template "chart.name" . }}/values.yaml`` file.
-
-* Create namespace ``{{ template "chart.name" . }}`` in Kubernetes cluster.
-
-```bash
-kubectl create namespace {{ template "chart.name" . }}
-```
+* Change the values according to the need of the environment in ``{{ template "chart.name" . }}/values.yaml`` file. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
 
 * Test the installation with command:
 
 ```bash
-helm upgrade --install {{ template "chart.name" . }} -f {{ template "chart.name" . }}/values.yaml {{ template "chart.name" . }} -n {{ template "chart.name" . }} --dry-run
+helm upgrade --install {{ template "chart.name" . }} -f {{ template "chart.name" . }}/values.yaml {{ template "chart.name" . }}/ -n {{ template "chart.name" . }} --create-namespace --dry-run
 ```
 
 * To install/upgrade the chart with the release name `{{ template "chart.name" . }}`:
 
 ```bash
-helm upgrade --install {{ template "chart.name" . }} -f {{ template "chart.name" . }}/values.yaml {{ template "chart.name" . }} -n {{ template "chart.name" . }}
+helm upgrade --install {{ template "chart.name" . }} -f {{ template "chart.name" . }}/values.yaml {{ template "chart.name" . }}/ -n {{ template "chart.name" . }} --create-namespace
 ```
 
-These commands install {{ template "chart.name" . }} on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
-
-* List all releases using follow command:
+Create a port-forward with the follow command:
 
 ```bash
-helm list --all --all-namespaces
-
-#or
-
-helm list -f '{{ template "chart.name" . }}' -n {{ template "chart.name" . }}
+kubectl port-forward svc/{{ template "chart.name" . }} 3000:80 -n {{ template "chart.name" . }}
 ```
 
-* See the history of versions of ``{{ template "chart.name" . }}`` application with command.
-
-```bash
-helm history {{ template "chart.name" . }} -n {{ template "chart.name" . }}
-```
+Open the browser and access the URL: http://localhost:3000
 
 ## Uninstalling the Chart
 
@@ -92,26 +43,10 @@ helm uninstall {{ template "chart.name" . }} -n {{ template "chart.name" . }}
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
-> If the application is removed without the ``--keep-history`` option, the history will be lost and it will not be possible to roll back.
-
 ## Parameters
 
 The following tables lists the configurable parameters of the chart and their default values.
 
-{{ template "chart.valuesTable" . }}
-
 Change the values according to the need of the environment in ``{{ template "chart.name" . }}/values.yaml`` file.
 
-# Documentation of Helm Chart
-
-* Install helm-docs following the instructions on this page https://github.com/norwoodj/helm-docs
-
-* Generate docs with helm-docs for this chart.
-
-```bash
-cd {{ template "chart.name" . }}
-
-helm-docs
-```
-
-The markdown generation is entirely gotemplate driven. The tool parses metadata from charts and generates a number of sub-templates that can be referenced in a template file (by default ``README.md.gotmpl``). If no template file is provided, the tool has a default internal template that will generate a reasonably formatted README.
+{{ template "chart.valuesTable" . }}

@@ -1,4 +1,3 @@
-{{/* vim: set filetype=mustache: */}}
 {{/*
 Expand the name of the chart.
 */}}
@@ -49,15 +48,4 @@ Selector labels
 {{- define "kube-pires.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "kube-pires.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "kube-pires.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "kube-pires.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
 {{- end }}

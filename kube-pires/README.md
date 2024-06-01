@@ -1,87 +1,38 @@
 # kube-pires
 
-![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)  ![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square)
+![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)  ![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-informational?style=flat-square)
 
-Helm chart of example
+Helm chart of example for deploy kube-pires
 
 # Prerequisites
 
-## Kubectl
-
-Install ``kubectl`` command.
-
-```bash
-curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-
-chmod +x ./kubectl
-
-sudo mv ./kubectl /usr/local/bin/kubectl
-
-kubectl version --client
-```
-
-## Helm
-
-Install ``helm`` command.
-
-```bash
-VERSION=v3.2.4
-HELM_TAR_FILE=helm-$VERSION-linux-amd64.tar.gz
-
-wget https://get.helm.sh/${HELM_TAR_FILE}
-
-tar -xvzf ${HELM_TAR_FILE}
-
-chmod +x linux-amd64/helm
-
-sudo cp linux-amd64/helm /usr/bin/helm
-
-rm -rf ${HELM_TAR_FILE} linux-amd64
-
-helm version
-```
+* Install the kubectl, helm and helm-docs commands following the instructions of the file [REQUIREMENTS.md](../REQUIREMENTS.md).
 
 # Installing the Chart
 
-* First, access a Kubernetes cluster.
+* Access a Kubernetes cluster.
 
-* Change the values according to the need of the environment in ``kube-pires/values.yaml`` file.
-
-* Create namespace ``kube-pires`` in Kubernetes cluster.
-
-```bash
-kubectl create namespace kube-pires
-```
+* Change the values according to the need of the environment in ``kube-pires/values.yaml`` file. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
 
 * Test the installation with command:
 
 ```bash
-helm upgrade --install kube-pires -f kube-pires/values.yaml kube-pires -n kube-pires --dry-run
+helm upgrade --install kube-pires -f kube-pires/values.yaml kube-pires/ -n kube-pires --create-namespace --dry-run
 ```
 
 * To install/upgrade the chart with the release name `kube-pires`:
 
 ```bash
-helm upgrade --install kube-pires -f kube-pires/values.yaml kube-pires -n kube-pires
+helm upgrade --install kube-pires -f kube-pires/values.yaml kube-pires/ -n kube-pires --create-namespace
 ```
 
-These commands install kube-pires on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
-
-* List all releases using follow command:
+Create a port-forward with the follow command:
 
 ```bash
-helm list --all --all-namespaces
-
-#or
-
-helm list -f 'kube-pires' -n kube-pires
+kubectl port-forward svc/kube-pires 3000:80 -n kube-pires
 ```
 
-* See the history of versions of ``kube-pires`` application with command.
-
-```bash
-helm history kube-pires -n kube-pires
-```
+Open the browser and access the URL: http://localhost:3000
 
 ## Uninstalling the Chart
 
@@ -93,77 +44,68 @@ helm uninstall kube-pires -n kube-pires
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
-> If the application is removed without the ``--keep-history`` option, the history will be lost and it will not be possible to roll back.
-
 ## Parameters
 
 The following tables lists the configurable parameters of the chart and their default values.
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| affinity | object | `{}` |  |
-| autoscaling.enabled | bool | `false` |  |
-| autoscaling.maxReplicas | int | `20` |  |
-| autoscaling.minReplicas | int | `1` |  |
-| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
-| fullnameOverride | string | `""` |  |
-| image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"nginx"` |  |
-| image.tag | string | `"1.19.2"` |  |
-| imagePullSecrets | list | `[]` |  |
-| ingress.annotations | object | `{}` |  |
-| ingress.enabled | bool | `false` |  |
-| ingress.hosts[0].host | string | `"chart-example.local"` |  |
-| ingress.hosts[0].paths | list | `[]` |  |
-| ingress.tls | list | `[]` |  |
-| livenessProbe.failureThreshold | int | `3` |  |
-| livenessProbe.initialDelaySeconds | int | `20` |  |
-| livenessProbe.path | string | `"/fail"` |  |
-| livenessProbe.periodSeconds | int | `10` |  |
-| livenessProbe.successThreshold | int | `1` |  |
-| livenessProbe.timeoutSeconds | int | `5` |  |
-| mySecret.enabled | bool | `true` |  |
-| mySecret.my_secret_distributed_tracing_enabled | string | `"true"` |  |
-| mySecret.my_secret_high_security | string | `"false"` |  |
-| mySecret.my_secret_license_key | string | `"mysecurepassword2"` |  |
-| nameOverride | string | `""` |  |
-| nodeSelector | object | `{}` |  |
-| podAnnotations | object | `{}` |  |
-| podSecurityContext | object | `{}` |  |
-| readinessProbe.failureThreshold | int | `3` |  |
-| readinessProbe.initialDelaySeconds | int | `20` |  |
-| readinessProbe.path | string | `"/fail"` |  |
-| readinessProbe.periodSeconds | int | `10` |  |
-| readinessProbe.successThreshold | int | `1` |  |
-| readinessProbe.timeoutSeconds | int | `5` |  |
-| replicaCount | int | `20` |  |
-| resources.limits.cpu | string | `"300m"` |  |
-| resources.limits.memory | string | `"512Mi"` |  |
-| resources.requests.cpu | string | `"100m"` |  |
-| resources.requests.memory | string | `"128Mi"` |  |
-| securityContext | object | `{}` |  |
-| service.port | int | `80` |  |
-| service.type | string | `"ClusterIP"` |  |
-| serviceAccount.annotations | object | `{}` |  |
-| serviceAccount.create | bool | `true` |  |
-| serviceAccount.name | string | `""` |  |
-| tolerations | list | `[]` |  |
-| updateStrategy.rollingUpdate.maxSurge | int | `6` |  |
-| updateStrategy.rollingUpdate.maxUnavailable | int | `0` |  |
-| updateStrategy.type | string | `"RollingUpdate"` |  |
-
 Change the values according to the need of the environment in ``kube-pires/values.yaml`` file.
 
-# Documentation of Helm Chart
-
-* Install helm-docs following the instructions on this page https://github.com/norwoodj/helm-docs
-
-* Generate docs with helm-docs for this chart.
-
-```bash
-cd kube-pires
-
-helm-docs
-```
-
-The markdown generation is entirely gotemplate driven. The tool parses metadata from charts and generates a number of sub-templates that can be referenced in a template file (by default ``README.md.gotmpl``). If no template file is provided, the tool has a default internal template that will generate a reasonably formatted README.
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| affinity | object | `{}` | Affinity configurations |
+| autoscaling | object | `{"enabled":false,"maxReplicas":20,"minReplicas":1,"targetCPUUtilizationPercentage":80}` | Auto scaling configurations |
+| fullnameOverride | string | `""` |  |
+| image.pullPolicy | string | `"IfNotPresent"` | Pull policy of Docker image |
+| image.repository | string | `"aeciopires/kube-pires"` | Docker image name |
+| image.tag | string | `"1.0.0"` | Docker image tag |
+| imagePullSecrets | list | `[]` | List of dockerconfig secrets names to use when pulling images |
+| ingress.annotations | object | `{"alb.ingress.kubernetes.io/certificate-arn":"arn:aws:acm:AWS_REGION:AWS_ACCOUNT:certificate/ID_ACM_CERTIFICATE","alb.ingress.kubernetes.io/healthcheck-path":"/","alb.ingress.kubernetes.io/healthcheck-port":"http","alb.ingress.kubernetes.io/listen-ports":"[{\"HTTP\": 80}, {\"HTTPS\": 443}]","alb.ingress.kubernetes.io/scheme":"internet-facing","alb.ingress.kubernetes.io/ssl-redirect":"443","alb.ingress.kubernetes.io/tags":"Scost=kube-pires, Environment=testing, Terraform=true, Kubernetes=true","kubernetes.io/ingress.class":"alb"}` | Ingress annotations |
+| ingress.className | string | `""` |  |
+| ingress.enabled | bool | `false` | Enables Ingress |
+| ingress.hosts | list | `[{"host":"kube-pires.aeciopires.com","paths":[{"path":"/","pathType":"Prefix"}]}]` | Ingress hosts |
+| ingress.tls | list | `[]` | Ingress TLS configuration |
+| karpenter.amiFamily | string | `"Bottlerocket"` | AMIFamily is a required field, dictating both the default bootstrapping logic for nodes provisioned  through this EC2NodeClass but also selecting a group of recommended, latest AMIs by default. Currently, Karpenter supports amiFamily values AL2, Bottlerocket, Ubuntu, Windows2019, Windows2022 and Custom. GPUs are only supported by default with AL2 and Bottlerocket. The AL2 amiFamily does not support ARM64 GPU instance type |
+| karpenter.clusterName | string | `"CHANGE_HERE"` | Name of cluster. Change the term CHANGE_HERE by EKS cluster name if you want to use Karpenter. Example: testing-my-cluster |
+| karpenter.disruption | object | `{"consolidateAfter":"30s","consolidationPolicy":"WhenEmpty","expireAfter":"720h"}` | Disruption section which describes the ways in which Karpenter can disrupt and replace Nodes. Configuration in this section constrains how aggressive Karpenter can be with performing operations like rolling Nodes due to them hitting their maximum lifetime (expiry) or scaling down nodes to reduce cluster cost |
+| karpenter.disruption.consolidateAfter | string | `"30s"` | The amount of time Karpenter should wait after discovering a consolidation decision This value can currently only be set when the consolidationPolicy is 'WhenEmpty' You can choose to disable consolidation entirely by setting the string value 'Never' here |
+| karpenter.disruption.consolidationPolicy | string | `"WhenEmpty"` | Describes which types of Nodes Karpenter should consider for consolidation. If using 'WhenUnderutilized', Karpenter will consider all nodes for consolidation and attempt to remove or replace Nodes when it discovers that the Node is underutilized and could be changed to reduce cost If using `WhenEmpty`, Karpenter will only consider nodes for consolidation that contain no workload pods |
+| karpenter.disruption.expireAfter | string | `"720h"` | The amount of time a Node can live on the cluster before being removed Avoiding long-running Nodes helps to reduce security vulnerabilities as well as to reduce the chance of issues that can plague Nodes with long uptimes such as file fragmentation or memory leaks from system processes You can choose to disable expiration entirely by setting the string value 'Never' here |
+| karpenter.enabled | bool | `false` | Enables support provisioner of Karpenter. Reference: https://karpenter.sh/. Tested only using EKS cluster 1.25 in AWS with Karpenter 0.33.0. |
+| karpenter.instanceProfile | object | `{"name":"CHANGE_HERE","use":false}` | Name of instanceProfile EKS cluster. Conflicts with karpenter.role. Must specify one of "role" or "instanceProfile" for Karpenter to launch nodes Example: Karpenter-testing-my-cluster-2023120112554517810000001e |
+| karpenter.labels | object | `{"app":"kube-pires","karpenter":"true"}` | Labels are arbitrary key-values that are applied to all nodes |
+| karpenter.limits | object | `{"cpu":"2","memory":"8Gi"}` | Resource limits constrain the total size of the cluster. Limits prevent Karpenter from creating new instances once the limit is exceeded. |
+| karpenter.metadataOptions | object | `{"httpEndpoint":"enabled","httpProtocolIPv6":"disabled","httpPutResponseHopLimit":2,"httpTokens":"required"}` | Optional, configures IMDS for the instance |
+| karpenter.requirements | list | `[{"key":"karpenter.k8s.aws/instance-category","operator":"In","values":["c","m","r"]},{"key":"karpenter.k8s.aws/instance-cpu","operator":"In","values":["2","4","8","16","32"]},{"key":"kubernetes.io/arch","operator":"In","values":["amd64"]},{"key":"kubernetes.io/os","operator":"In","values":["linux"]},{"key":"karpenter.sh/capacity-type","operator":"In","values":["spot","on-demand"]}]` | Requirements that constrain the parameters of provisioned nodes. These requirements are combined with pod.spec.topologySpreadConstraints, pod.spec.affinity.nodeAffinity, pod.spec.affinity.podAffinity, and pod.spec.nodeSelector rules. Operators { In, NotIn, Exists, DoesNotExist, Gt, and Lt } are supported. https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#operators |
+| karpenter.resourceTags | object | `{"Environment":"testing","Scost":"kube-pires","customerid":"p1t2r3e4g5","product":"kube-pires","shardid":"sid1"}` | Karpenter adds tags to all resources it creates, including EC2 Instances, EBS volumes, and Launch Templates. See details: https://karpenter.sh/v0.33/concepts/nodeclasses/#spectags |
+| karpenter.role | object | `{"name":"CHANGE_HERE","use":true}` | Name of role EKS cluster. The Karpenter spec.instanceProfile field has been removed from the EC2NodeClass in favor of the spec.role field. Karpenter is also removing support for the defaultInstanceProfile specified globally in the karpenter-global-settings, making the spec.role field required for all EC2NodeClasses. Karpenter will now auto-generate the instance profile in your EC2NodeClass, given the role that you specify. If using the Karpenter Getting Started Guide to deploy Karpenter, you can use the karpenter-irsa-$CLUSTER_NAME-$ID role  provisioned by that process (which is limited to 64 characters). Example: karpenter-irsa-testing-my-cluster-2023120421433226760000001e |
+| karpenter.tag | string | `"karpenter.sh/discovery"` | Tag of discovery with name of cluster used by Karpenter. Change the term CHANGE_HERE by EKS cluster name if you want to use Karpenter. The cluster name, security group and subnets must have this tag. |
+| karpenter.weight | int | `10` | Priority given to the NodePool when the scheduler considers which NodePool to select. Higher weights indicate higher priority when comparing NodePools. Specifying no weight is equivalent to specifying a weight of 0. |
+| livenessProbe | object | `{"failureThreshold":3,"initialDelaySeconds":5,"path":"/health","periodSeconds":10,"successThreshold":1,"timeoutSeconds":5}` | Healh check continuos |
+| livenessProbe.failureThreshold | int | `3` | When a probe fails, Kubernetes will try failureThreshold times before giving up. Giving up in case of liveness probe means restarting the container. In case of readiness probe the Pod will be marked Unready |
+| livenessProbe.initialDelaySeconds | int | `5` | Number of seconds after the container has started before liveness |
+| livenessProbe.path | string | `"/health"` | Path of health check of application |
+| livenessProbe.periodSeconds | int | `10` | Specifies that the kubelet should perform a liveness probe every N seconds |
+| livenessProbe.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful after having failed |
+| livenessProbe.timeoutSeconds | int | `5` | Number of seconds after which the probe times out |
+| mySecret | object | `{"enabled":true,"mySecretDistributedTracingEnabled":"true","mySecretHighSecurity":"false","mySecretLicenseKey":"mysecurepassword2"}` | Configurations of the application. Create configMap and Secret for use in deployment as environment variable |
+| nameOverride | string | `""` |  |
+| nodeSelector | object | `{}` | Node selector configurations |
+| pdb.enabled | bool | `false` |  |
+| pdb.maxUnavailable | string | `"25%"` |  |
+| podAnnotations | object | `{}` | Pod annotations configurations |
+| podSecurityContext | object | `{}` | Pod security configurations |
+| readinessProbe | object | `{"failureThreshold":3,"initialDelaySeconds":5,"path":"/health","periodSeconds":10,"successThreshold":1,"timeoutSeconds":5}` | Health check on creation pod |
+| readinessProbe.failureThreshold | int | `3` | When a probe fails, Kubernetes will try failureThreshold times before giving up. Giving up in case of liveness probe means restarting the container. In case of readiness probe the Pod will be marked Unready |
+| readinessProbe.initialDelaySeconds | int | `5` | Number of seconds after the container has started before readiness |
+| readinessProbe.path | string | `"/health"` | Path of health check of application |
+| readinessProbe.periodSeconds | int | `10` | Specifies that the kubelet should perform a liveness probe every N seconds |
+| readinessProbe.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful after having failed |
+| readinessProbe.timeoutSeconds | int | `5` | Number of seconds after which the probe times out |
+| replicaCount | int | `2` | Number of replicas. Used if autoscaling is false |
+| resources | object | `{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"5m","memory":"5Mi"}}` | Requests and limits of pod resources. See: [https://kubernetes.io/docs/concepts/configuration/manage-resources-containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) |
+| securityContext | object | `{}` | Security context configurations |
+| service.port | int | `80` | Port of service in Kubernetes cluster |
+| service.type | string | `"NodePort"` | Type of service in Kubernetes cluster |
+| serviceMonitor | object | `{"additionalLabels":{},"enabled":false,"interval":"30s","namespace":"kube-pires","namespaceSelector":{},"path":"/metrics","scrapeTimeout":"10s"}` | Service monitor configurations |
+| tolerations | list | `[]` | Tolerations configurations |
+| updateStrategy | object | `{"rollingUpdate":{"maxSurge":6,"maxUnavailable":0},"type":"RollingUpdate"}` | Update strategy configurations |
