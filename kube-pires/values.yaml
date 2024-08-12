@@ -3,7 +3,7 @@ serviceAccount:
   create: false
 
 # -- Number of replicas. Used if autoscaling is false
-replicaCount: 2
+replicaCount: 5
 
 # -- Update strategy configurations
 updateStrategy:
