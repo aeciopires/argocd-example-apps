@@ -1,4 +1,6 @@
 # Default values for kube-pires.
+serviceAccount:
+  create: false
 
 # -- Number of replicas. Used if autoscaling is false
 replicaCount: 2
